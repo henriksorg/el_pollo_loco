@@ -1,7 +1,9 @@
 class Character extends MovableObject {
+
+    //mit world kann auf alle Variablen von World zugegriffen werden(insbesondere Keyboard)
     world;
     height = 280;
-    y = 155;
+    y = 80;
     IMAGES_WALKING = [
         'img/2_character_pepe/2_walk/W-21.png',
         'img/2_character_pepe/2_walk/W-22.png',
@@ -10,52 +12,118 @@ class Character extends MovableObject {
         'img/2_character_pepe/2_walk/W-25.png',
         'img/2_character_pepe/2_walk/W-26.png'
     ];
-    //mit world kann auf alle Variablen von World zugegriffen werden(insbesondere Keyboard)
-    speed = 10;
+
+    IMAGES_JUMPING = [
+        'img/2_character_pepe/3_jump/J-31.png',
+        'img/2_character_pepe/3_jump/J-32.png',
+        'img/2_character_pepe/3_jump/J-33.png',
+        'img/2_character_pepe/3_jump/J-34.png',
+        'img/2_character_pepe/3_jump/J-35.png',
+        'img/2_character_pepe/3_jump/J-36.png',
+        'img/2_character_pepe/3_jump/J-37.png',
+        'img/2_character_pepe/3_jump/J-38.png',
+        'img/2_character_pepe/3_jump/J-39.png'
+    ];
+
+    IMAGES_DEAD = [
+        'img/2_character_pepe/5_dead/D-51.png',
+        'img/2_character_pepe/5_dead/D-52.png',
+        'img/2_character_pepe/5_dead/D-53.png',
+        'img/2_character_pepe/5_dead/D-54.png',
+        'img/2_character_pepe/5_dead/D-55.png',
+        'img/2_character_pepe/5_dead/D-56.png',
+        'img/2_character_pepe/5_dead/D-57.png',
+
+    ]
+
+    IMAGES_HURT = [
+        'img/2_character_pepe/4_hurt/H-41.png',
+        'img/2_character_pepe/4_hurt/H-42.png',
+        'img/2_character_pepe/4_hurt/H-43.png'
+    ]
+
+    walking_sound = new Audio('../audio/walking.mp3')
+
+
+    speed = 20;
+
+    walking = false;
 
     constructor() {
         super().loadImage('img/2_character_pepe/1_idle/idle/I-1.png');
-        this.loadImages(this.IMAGES_WALKING)
+        this.loadImages(this.IMAGES_WALKING);
+        this.loadImages(this.IMAGES_JUMPING);
+        this.loadImages(this.IMAGES_DEAD);
+        this.loadImages(this.IMAGES_HURT);
+        this.applyGravity();
         this.animate();
     }
 
     animate() {
 
         setInterval(() => {
-            if (this.world.keyboard.RIGHT) {
-                this.x += this.speed;
+            this.walking_sound.pause();
+            if (this.walking == true) {
+                this.walking_sound.play();
+            }
+
+            this.walking = false;
+
+            //WALK RIGHT
+            if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
+                this.moveRight();
                 this.otherDirection = false;
+                this.walking = true;
             }
-            if (this.world.keyboard.LEFT) {
-                this.x -= this.speed;
+
+            //WALK LEFT
+            if (this.world.keyboard.LEFT && this.x > 100) {
+                this.moveLeft();
                 this.otherDirection = true;
+                this.walking = true;
             }
-            this.world.camera_x = -this.x
-        }, 100);
+
+            //JUMP
+            if (this.world.keyboard.SPACE && !this.isAboveGround()) {
+                this.jump();
+                // this.walking_sound.pause();
+            }
+
+            if(this.isDead()){
+                this.fallDown()
+                console.log(this.y);
+            }
+
+            this.world.camera_x = -this.x + 100
+        }, 50);
 
         setInterval(() => {
             if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
                 //walk animation
-                let i = this.currentImage % this.IMAGES_WALKING.length;
-                let path = this.IMAGES_WALKING[i];
-                this.img = this.imageCache[path];
-                this.currentImage++;
+                this.playAnimation(this.IMAGES_WALKING)
+            }
+            if (this.isAboveGround()) {
+                //jump animation
+                this.playAnimation(this.IMAGES_JUMPING)
+            }
+            if(this.isHurt()){
+                //get hurt animation
+                this.playAnimation(this.IMAGES_HURT)
+            }
+            if (this.isDead()) {
+                //dead animation
+                this.playAnimation(this.IMAGES_DEAD)
             }
         }, 100);
-
+ 
     }
 
-    loadImages() {
-        this.IMAGES_WALKING.forEach(path => {
+    loadImages(images) {
+        images.forEach(path => {
             let img = new Image();
             img.src = path;
             this.imageCache[path] = img;
         });
     }
 
-
-
-    // jump() {
-
-    // }
 }

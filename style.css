@@ -9,6 +9,4 @@ body{
 canvas{
     background: url('img/5_background/layers/air.png');
     background-size: cover;
-    width: 720px;
-    height: 480px;
 }

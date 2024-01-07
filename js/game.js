@@ -22,7 +22,8 @@ function init() {
 
         } else if (e.key == " " && !keyboard.SPACE) {
             keyboard.SPACE = true;
-
+        }else if (e.key == "d") {
+            keyboard.D = true;
         }
     });
 
@@ -41,7 +42,8 @@ function init() {
 
         } else if (e.key == " ") {
             keyboard.SPACE = false;
-
+        } else if (e.key == "d") {
+            keyboard.D = false;
         }
     });
 }
