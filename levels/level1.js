@@ -1,18 +1,32 @@
-const level1 = new Level(
+let level1;
+function initLevel(){
+    level1 = new Level(
     [
-        new Chicken(),
-        new Chicken(),
-        new Chicken(),
+        new NormalChicken(),
+        new NormalChicken(),
+        new NormalChicken(),
+        new SmallChicken(),
+        new SmallChicken(),
+        new SmallChicken(),
+        new Endboss()
     ],
     [
-        new Cloud()
+        
     ],
     [
-        // new BackgroundObject('img/5_background/layers/3_third_layer/full.png', 720),
-        // new BackgroundObject('img/5_background/layers/2_second_layer/full.png', 720),
-        // new BackgroundObject('img/5_background/layers/1_first_layer/full.png', 720),
+
+    ],
+    [
+        new Coin('img/6_salsa_bottle/salsa_bottle.png'),
+        new Coin('img/6_salsa_bottle/salsa_bottle.png'),
+        new Coin('img/6_salsa_bottle/salsa_bottle.png'),
+        new Coin('img/6_salsa_bottle/salsa_bottle.png'),
+        new Coin('img/6_salsa_bottle/salsa_bottle.png'),
+        new Bottle('img/8_coin/coin_1.png'),
+        new Bottle('img/8_coin/coin_1.png'),
+        new Bottle('img/8_coin/coin_1.png'),
+        new Bottle('img/8_coin/coin_1.png'),
+        new Bottle('img/8_coin/coin_1.png')
     ]
-
-
-
 )
+}
