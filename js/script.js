@@ -1,3 +1,8 @@
+let intervalIds = [];
+
+/**
+ * events für die Bilder auf dem Startbildschirm
+ */
 function addEvents() {
   document.getElementById('start').addEventListener('click', init);
   document.getElementById('steering').addEventListener('click', openSteering);
@@ -6,8 +11,30 @@ function addEvents() {
 }
 
 
+/**
+ * with this function you can start an interval, that you want to stop
+ */
+function setStoppableInterval(fn, time) {
+  let id = setInterval(fn, time);
+  intervalIds.push(id);
+}
+
+
+/**
+ * function to stop all stoppable Interval 
+ */
+function stopAllIntervals() {
+  intervalIds.forEach(i => {
+    clearInterval(i)
+  });
+}
+
+
+/**
+ * opens the history behind the game
+ */
 function openHistory() {
-openInfo();
+  openInfo();
   document.getElementById('info').innerHTML = /*html*/ `
     <div>
       <p>
@@ -33,8 +60,11 @@ openInfo();
 }
 
 
-function openInfo(){
-document.getElementById('info-container').innerHTML = /*html*/ `
+/**
+ * shows game instructions of the game
+ */
+function openInfo() {
+  document.getElementById('info-container').innerHTML = /*html*/ `
         <div class='info-bg d-flex justify-content-center align-items-center'>
             <div id='info' class='info'>
             </div>
@@ -43,11 +73,10 @@ document.getElementById('info-container').innerHTML = /*html*/ `
 }
 
 
-function closeInfo() {
-  document.getElementById('info-container').innerHTML = '';
-}
 
-
+/**
+ * open the game instructions
+ */
 function openSteering() {
   openInfo();
   document.getElementById('info').innerHTML = /*html*/ `
@@ -73,35 +102,45 @@ function openSteering() {
 }
 
 
-function endGame(path){
-  setTimeout(() => {
-    document.getElementById('start-screen').src = path;
-    document.getElementById('start-screen').classList.remove('d-none');
-    addReplayButton();
-    setTimeout(() => {
-      document.getElementById('start-screen').classList.add('fade-in');
-      document.getElementById('replay-button').classList.add('fade-in');
-    }, 20);
-  }, 500);
-  setTimeout(() => {
-    clearAllIntervals();
-  }, 1200);
-  
-}
-
-  
-function clearAllIntervals() {
-  for (let i = 1; i < 999; i++) window.clearInterval(i);
+/**
+ * end the game:
+ * display end screen
+ * stop all running intervals 
+ * @param {string} path for the end-screen image
+ */
+function endGame(path) {
+  endScreenFadeIn(path);
+  document.getElementById('start-screen').addEventListener('transitionend', addReplayButton)
+  stopAllIntervals();
 }
 
 
-function addReplayButton(){
-  document.getElementById('info-container').removeEventListener('click', closeInfo);
-  document.getElementById('info-container').innerHTML += /*html*/`
+/**
+ * let the end screen fade in
+ */
+function endScreenFadeIn(path) {
+  document.getElementById('start-screen').src = path;
+  document.getElementById('start-screen').classList.remove('d-none');
+  setTimeout(() => {
+    document.getElementById('start-screen').classList.add('fade-in');
+  }, 20);  
+}
+
+
+function addReplayButton() {
+  document.getElementById('replay-container').innerHTML += /*html*/`
   <div class='replay-button-container'>
-    <a href='index.html' class='replay-button' id='replay-button'>Replay</a>
+    <a href='index.html' class='replay-button fade-out' id='replay-button'>Replay</a>
   </div>
   `
+}
+
+
+/**
+ * close the extra info by clicking on it
+ */
+function closeInfo() {
+  document.getElementById('info-container').innerHTML = '';
 }
 
 

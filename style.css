@@ -76,7 +76,7 @@ canvas {
 }
 
 .btn-responsive img {
-  height: 100px;
+  height: 70px;
 }
 
 .help-img {
@@ -118,7 +118,7 @@ canvas {
   width: 720px;
   height: 480px;
   opacity: 1;
-  transition: opacity 3s ease-in-out;
+  transition: opacity 2s ease-in-out;
   /* Animationseinstellungen */
 }
 
@@ -198,7 +198,7 @@ span {
 }
 
 .fade-in {
-  opacity: 1 !important;
+  opacity: 1;
 }
 
 .d-none {
@@ -267,12 +267,15 @@ span {
   border: 2px solid white;
   border-radius: 12px;
   z-index: 999;
-  opacity: 0;
-  transition: opacity 3s;
+  opacity: 1;
 }
 
-.replay-button:hover {
+.replay-button:hover, .mute-img-container:hover, .responsive-directions:hover {
   background: rgb(0, 100, 0);
+}
+
+.replay-button, .mute-img-container, .responsive-directions{
+  transition: background-color .15s;
 }
 
 .settings {
@@ -287,6 +290,7 @@ span {
   filter: brightness(0) invert(1);
   height: 23px;
   cursor: pointer;
+  z-index: 999;
 }
 
 .mute-img-container{
@@ -375,9 +379,7 @@ span {
   display: block;
   margin: auto;
   transform: rotate(0deg);
-  /* Ursprungsposition */
   transition: transform 2s ease-out;
-  /* Sanfter Übergang beim Verlassen */
 }
 
 .dancing-cactus-container:hover .dancing-cactus {
@@ -417,6 +419,7 @@ span {
   padding: 4px 12px;
   border-radius: 50%;
   border: white 3px solid;
+  z-index: 999;
 }
 
 /* Smartphones */
@@ -455,6 +458,11 @@ span {
 
   .btn-responsive {
     display: unset;
+  }
+  .replay-button-container {
+    margin-top: 0;
+    align-items: flex-end;
+    margin-bottom: 40px;
   }
 }
 

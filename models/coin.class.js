@@ -15,8 +15,11 @@ class Coin extends CollectableObject{
     }
 
 
+    /**
+     * animation from coin --> getting smaller and bigger
+     */
     animate(){
-        setInterval(() => {
+        setStoppableInterval(() => {
             this.playAnimation(this.IMAGES)
         }, 500);
     }

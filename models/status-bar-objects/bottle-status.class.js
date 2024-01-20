@@ -10,6 +10,7 @@ class BottleStatus extends StatusBar {
 
   bottleImage = 0;
 
+  
   constructor() {
     super();
     this.loadImages(this.IMAGES_BOTTLES);
@@ -20,12 +21,10 @@ class BottleStatus extends StatusBar {
     this.setImage(0);
   }
 
+
   setImage(index) {
+    index = Math.round(index / 2);
     let path = this.IMAGES_BOTTLES[index];
     this.img = this.imageCache[path];
   }
-
-  
-
-  
 }

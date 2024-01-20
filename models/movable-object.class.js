@@ -19,7 +19,7 @@ class MovableObject extends DrawableObject {
 
 
   applyGravity() {
-    setInterval(() => {
+    setStoppableInterval(() => {
       if (this.isAboveGround() || this.speedY > 0) {
         this.y -= this.speedY;
         this.speedY -= this.acceleration;
@@ -27,7 +27,10 @@ class MovableObject extends DrawableObject {
     }, 1000 / 25);
   }
 
-
+  /**
+   * checks if a movable object is above the ground or not
+   * @returns true if it is higher than the grounc
+   */
   isAboveGround() {
     if (this instanceof ThrowableObject) {
       return true;
@@ -39,6 +42,11 @@ class MovableObject extends DrawableObject {
   }
 
 
+  /**
+   * describes the collision parameters from two objects(left, right, top, bottom)
+   * @param {object} mo means the colliding movable object
+   * @returns if the character is colliding with chicken
+   */
   isColliding(mo) {
     return (
       this.x + this.width - this.offset.right > mo.x + mo.offset.left &&
@@ -49,11 +57,9 @@ class MovableObject extends DrawableObject {
   }
 
 
-  jumpOn(mo) {
-    return this.x + this.width > mo.x && this.y + this.height > mo.y;
-  }
-
-
+  /**
+   * @param {integer} energyLoss describes the amount of health that needs to be deducted from the total health.
+   */
   hit(energyLoss) {
     if (this.aboveChicken == false) {
       this.energy -= energyLoss;
@@ -62,6 +68,9 @@ class MovableObject extends DrawableObject {
   }
 
 
+  /**
+   * checks the temporal distance of the hits 
+   */
   setLastHit(){
     if(this.energy > 0) {
       this.lastHit = new Date().getTime();
@@ -72,37 +81,57 @@ class MovableObject extends DrawableObject {
   }
 
 
+  /**
+   * new Date ist in ms und muss in Sekunden umgewandelt werden
+   * @returns die Zeit des letzten Hits nzw ob diese länger her ist als 0.3s
+   */
   isHurt() {
-    let timePassed = new Date().getTime() - this.lastHit; // Difference in ms
-    timePassed = timePassed / 1000; //Difference in s
+    let timePassed = new Date().getTime() - this.lastHit;
+    timePassed = timePassed / 1000; 
     return timePassed < 0.3;
   }
 
 
+  /**
+   * @returns if health is gone
+   */
   isDead() {
     return this.energy <= 0;
   }
 
 
+  /**
+   * Funktion um etwas nach rechts zu bewegen
+   */
   moveLeft() {
     this.x -= this.speed;
   }
 
 
+  /**
+   * Funktion um etwas nach rechts zu bewegen
+   */
   moveRight() {
     this.x += this.speed;
   }
 
 
+  /**
+   * plays a series of images againa and again. this is getting to an animation
+   * @param {string} images are the sources of the images, that get played repeatadly
+   */
   playAnimation(images) {
     let i = this.currentImage % images.length;
     let path = images[i];
     this.img = this.imageCache[path];
     this.currentImage++;
-    // this.firstPass == false
   }
 
 
+  /**
+   * @param {string} images are sources of images, that get played once 
+   * @param {*} interval that have to be stopped after playing
+   */
   playAnimationOnce(images, interval) {
     let i = this.currentImage % images.length;
     let path = images[i];
@@ -120,18 +149,28 @@ class MovableObject extends DrawableObject {
   }
 
 
+  /**
+   * @param {integer} interval is the number of the interval that get stopped
+   */
   stopInterval(interval) {
     clearInterval(interval);
   }
 
 
+  /**
+   * For playAnimation or playAnimationOnce, an animation is executed. 
+   * If you want to reset the currently displayed image, this function can be used
+   */
   resetCurrentImage() {
     if (this.firstPass == true) {
       this.currentImage == 0;
     }
   }
 
-
+  /**
+   * 
+   * @param {integer} j is the velocity that is set for the vertical movement 
+   */
   jump(j) {
     this.speedY = j;
   }

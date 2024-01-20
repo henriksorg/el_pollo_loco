@@ -11,6 +11,7 @@ class EndbossStatus extends StatusBar {
     coinImage = 0;
     percentage;
   
+    
     constructor() {
       super();
       this.loadImages(this.IMAGES_ENDBOSS);
@@ -27,7 +28,4 @@ class EndbossStatus extends StatusBar {
       let path = this.IMAGES_ENDBOSS[this.resolveImageIndex()];
       this.img = this.imageCache[path];
     }
-
-    
-    
   }

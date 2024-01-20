@@ -1,5 +1,4 @@
 class Character extends MovableObject {
-  //mit world kann auf alle Variablen von World zugegriffen werden(insbesondere Keyboard)
   world;
   height = 280;
   y = 150;
@@ -31,8 +30,7 @@ class Character extends MovableObject {
     'img/2_character_pepe/5_dead/D-53.png',
     'img/2_character_pepe/5_dead/D-54.png',
     'img/2_character_pepe/5_dead/D-55.png',
-    'img/2_character_pepe/5_dead/D-56.png',
-    'img/2_character_pepe/5_dead/D-57.png'
+    'img/2_character_pepe/5_dead/D-56.png'
   ];
 
   IMAGES_HURT = [
@@ -71,12 +69,12 @@ class Character extends MovableObject {
     top: 120,
     left: 30,
     right: 30,
-    bottom: 10,
+    bottom: 0,
   };
   intervalJump;
-  walking_sound = new Audio('../audio/walking.mp3');
-  hit_audio = new Audio('../audio/ouch.mp3');
-  jump_audio = new Audio('../audio/jump.mp3');
+  walking_sound = new Audio('./audio/walking.mp3');
+  hit_audio = new Audio('./audio/ouch.mp3');
+  jump_audio = new Audio('./audio/jump.mp3');
 
   bottlesCollected = 0;
   coinsCollected = 0;
@@ -85,6 +83,8 @@ class Character extends MovableObject {
   aboveChicken = false;
   idleTime = new Date().getTime();
   idlePlayed = false;
+
+  fallAsleepAfter = 3;
 
   constructor() {
     super().loadImage('img/2_character_pepe/1_idle/idle/I-1.png');
@@ -99,33 +99,34 @@ class Character extends MovableObject {
     this.setAudioVolume();
   }
 
-  setAudioVolume(){
+  setAudioVolume() {
     this.walking_sound.volume = 0.5;
     this.jump_audio.volume = 0.5;
   }
 
+
   animate() {
-    setInterval(() => {
+    setStoppableInterval(() => {
       this.moveCharacter()
     }, 40);
 
-    setInterval(() => {
+    setStoppableInterval(() => {
       this.animateCharacter()
     }, 130);
   }
 
 
-  animateCharacter(){
+  animateCharacter() {
     if (this.moveLeftOrRight()) {
       this.playWalkingSound();
       this.resetIdleTime();
       this.playAnimation(this.IMAGES_WALKING);
     }
-    if(this.goToIdleOnce()){
+    if (this.goToIdleOnce()) {
       this.currentImage = 0;
       this.idleAnimation();
     }
-    if(this.goToIdleSleep()){
+    if (this.goToIdleSleep()) {
       this.playAnimation(this.IMAGES_IDLE_SLEEP);
     }
     if (this.getHurt()) {
@@ -134,33 +135,39 @@ class Character extends MovableObject {
       this.playHitAudio();
     }
     if (this.isDead()) {
-      this.playAnimation(this.IMAGES_DEAD);
+      this.isDeadAnimation();
       this.characterIsDead();
     }
   }
 
 
-  goToIdleSleep(){
-
+  isDeadAnimation() {
+    const deadInterval = setInterval(() => {
+      this.playAnimationOnce(this.IMAGES_DEAD, deadInterval);
+    }, 200);
   }
 
+  characterDead() {
+    this.firstPass = true
+    this.currentImage = 0;
+  }
 
-  playHitAudio(){
+  playHitAudio() {
     this.hit_audio.play()
   }
 
 
-  moveLeftOrRight(){
+  moveLeftOrRight() {
     return this.world.keyboard.RIGHT && !this.isAboveGround() || this.world.keyboard.LEFT && !this.isAboveGround()
   }
 
 
-  goToIdleOnce(){
+  goToIdleOnce() {
     return this.goToIdle() && !this.idlePlayed
   }
 
 
-  getHurt(){
+  getHurt() {
     return this.isHurt() && this.aboveChicken == false
   }
 
@@ -173,81 +180,139 @@ class Character extends MovableObject {
   }
 
 
-  resetIdleTime(){
+  /**
+   * The idle time checks, if the charcter is moved or playing a action. If not the character fall asleep
+   * The idle time has to be reseted at every action the character is playing 
+   */
+  resetIdleTime() {
     this.idleTime = new Date().getTime();
     this.idlePlayed = false;
   }
 
 
-  goToIdle(){
+  /**
+   * @returns if the character is in no-action a certain time. 
+   * After this time the character fall asleep 
+   */
+  goToIdle() {
     let idleDifference = (new Date().getTime() - this.idleTime) / 1000
-    return idleDifference > 2
+    return idleDifference > this.fallAsleepAfter
   }
 
 
-  goToIdleSleep(){
+  /**
+   * @returns returns the length when the character starts snoring
+   */
+  goToIdleSleep() {
     let idleDifference = (new Date().getTime() - this.idleTime) / 1000
-    return idleDifference > 2.7
+    return idleDifference > this.fallAsleepAfter + 0.7
   }
 
 
-  moveCharacter(){
-      //WALK RIGHT
-      if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-        this.characterMoveRight()
-      }
-      //WALK LEFT
-      if (this.world.keyboard.LEFT && this.x > 100) {
-        this.characterMoveLeft();
-      }
-      //JUMP
-      if (this.world.keyboard.SPACE && !this.isAboveGround()) {
-        this.resetIdleTime();
-        this.characterJump()
-        this.jumpAnimation();
-        this.jump_audio.play();
-      }
-      this.world.camera_x = -this.x + 100;
+  /**
+   * function to move the character
+   * the character can move right or left
+   * and jump 
+   */
+  moveCharacter() {
+    if (this.canWalkRight()) {
+      this.characterMoveRight()
+    }
+    if (this.canWalkLeft()) {
+      this.characterMoveLeft();
+    }
+    if (this.canJump()) {
+      this.resetIdleTime();
+      this.characterJump()
+      this.jumpAnimation();
+      this.jump_audio.play();
+    }
+    this.world.camera_x = -this.x + 100;
   }
 
 
-  playWalkingSound(){ 
+  /**
+   * check if the character can walk right
+   * @returns true if the character can walk right
+   */
+  canWalkRight() {
+    return this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x
+  }
+
+
+  /**
+   * check if the character can walk left
+   * @returns true if the character can walk left
+   */
+  canWalkLeft() {
+    return this.world.keyboard.LEFT && this.x > 100
+  }
+
+
+  /**
+   * check if the character can jump 
+   * @returns true if the character can jump 
+   */
+  canJump() {
+    return this.world.keyboard.SPACE && !this.isAboveGround()
+  }
+
+
+  playWalkingSound() {
     this.walking = true;
     this.walking_sound.play();
   }
 
 
-  characterMoveRight(){
+  characterMoveRight() {
     this.moveRight();
     this.otherDirection = false;
     this.walking = true;
-    
+
   }
 
 
-  characterMoveLeft(){
+  characterMoveLeft() {
     this.moveLeft();
     this.otherDirection = true;
     this.walking = true;
   }
 
-
-  characterIsDead(){
-    if (this.dead == false) {          
+  /**
+   * end animation of character and exit game if character is out of map
+   */
+  characterIsDead() {
+    if (this.dead == false) {
       this.dead = true;
       this.fallDown();
+      setTimeout(() => {
       endGame('img/9_intro_outro_screens/game_over/you lost.png');
+      }, 1000); 
     }
   }
 
 
-  fallDown() {
-    this.speedY = 5;
-    this.acceleration = 5;
+  /**
+   * @returns if character is out of the map
+   */
+  characterFellDown() {
+    return this.y > 0
   }
 
 
-  characterJump(){
+  /**
+   * falling down the map while dying
+   */
+  fallDown() {
+    this.speedY = 15;
+    this.acceleration = 6;
+  }
+
+
+  /**
+   * jump impuls for character
+   */
+  characterJump() {
     this.jump(21);
     this.firstPass = true
     this.currentImage = 0;
@@ -260,12 +325,19 @@ class Character extends MovableObject {
     }, 100);
   }
 
-
+  /**
+   * 
+   * @param {*} mo 
+   * @returns 
+   */
   isAboveChicken(mo) {
     return this.y + this.height - this.offset.bottom - 30 < mo.y + mo.offset.top;
   }
 
-  
+
+  /**
+   * @param {string} images that have to pre load in the cache
+   */
   loadImages(images) {
     images.forEach((path) => {
       let img = new Image();

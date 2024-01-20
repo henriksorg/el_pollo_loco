@@ -2,12 +2,19 @@ let canvas;
 let world;
 let keyboard = new Keyboard();
 let loadStartImage = 'img/9_intro_outro_screens/start/startscreen_1.png'; 
-let background_audio = new Audio('../audio/background_music.mp3');
+let background_audio = new Audio('./audio/background_music.mp3');
 let allAudios;
 let sound = true;
 let messageAppeard = false;
+let audioMuted;
 
 
+/**
+ * initializ the game
+ * insert game screen
+ * initialize the control (keyboard and touch-buttons for smartphones)
+ * initialize the world
+ */
 function init() {
   initLevel();
   document.getElementById('insert-container').innerHTML = insertGame();
@@ -29,11 +36,17 @@ function setBackgroundMusic(){
 }
 
 
+/**
+ * open the in-game help by clicking the question tag 
+ */
 function openHelp(){
   document.getElementById('info-container').innerHTML = openHelpTemplate();
 }
 
 
+/**
+ * @returns the help template
+ */
 function openHelpTemplate(){
   return /*html*/`
   <div class='open-help-container' onclick='closeHelp()'>
@@ -49,7 +62,7 @@ function openHelpTemplate(){
             <div class='control-instruction w-100 d-flex justify-content-start'>
               <span class='no-wrap'>How to:</span>
               <div class='d-flex flex-direction-column how-to-container'>
-                <div>Kill normal Chicken by jumping on it</div>
+                <div>Kill normal Chicken by jumping or throwing bottle on it</div>
                 <div>Kill Boss Chicken by throwing your bottles</div>
                 <div>Tipp: Be careful! Don't waste your bottles!</div>
             </div>
@@ -68,19 +81,24 @@ function closeHelp(){
 }
 
 
+/**
+ * fade-in function for start screen
+ */
 function removeStartScreen() {
   let startScreen = document.getElementById('start-screen');
-  // Startet die Ausblend-Animation
-  setTimeout(() => {
+  requestAnimationFrame(() => {
     startScreen.classList.add('fade-out');
-  }, 10);
-  // Entfernt das Startbild aus dem DOM, wenn die Animation beendet ist
-  setTimeout(() => {
+  })
+  startScreen.addEventListener('transitionend', () => {
     startScreen.classList.add('d-none');
-  }, 3100); // 2000 ms entspricht der Dauer der CSS-Transition
+  }, { once: true })
 }
 
 
+/**
+ * template for the game screen
+ * @returns template 
+ */
 function insertGame(){
   return /*html*/ `
     <div class='game-container' id='game-container'>
@@ -103,6 +121,9 @@ function insertGame(){
 }
 
 
+/**
+ * steering for muting and unmuting the sound
+ */
 function toggleSound(){
   if(sound){
     muteSound();
@@ -121,6 +142,7 @@ function muteSound(){
   allAudios.forEach(audio => {
     audio.muted = true;
   });
+  audioMuted = true;
 }
 
 
@@ -129,9 +151,13 @@ function unMuteSound(){
   allAudios.forEach(audio => {
     audio.muted = false;
   });
+  audioMuted = false;
 }
 
 
+/**
+ * push all audios to one array
+ */
 function allAudiosToArray(){
   allAudios = [
     world.character.walking_sound, 
@@ -144,7 +170,9 @@ function allAudiosToArray(){
 }
 
 
-
+/**
+ * initialize the keyboard control
+ */
 function initializeSteering() {
   window.addEventListener('keydown', (e) => {
     if (e.key == 'ArrowUp' && !keyboard.UP) {
@@ -180,6 +208,9 @@ function initializeSteering() {
 }
 
 
+/**
+ * initialize the touch buttons
+ */
 function initializeButtonsResponsive() {
   document.getElementById('btn-left').addEventListener('touchstart', (e) => {
     e.preventDefault();
@@ -229,10 +260,13 @@ function initializeButtonsResponsive() {
 }
 
 
+/**
+ * turn phone to landscape
+ */
 function screenRotation(){
-  setInterval(() => {
+  setStoppableInterval(() => {
     if(window.innerHeight  > window.innerWidth && !messageAppeard){
-      document.getElementById('info-container').innerHTML = /*html*/`
+      document.getElementById('screen-rotation-container').innerHTML = /*html*/`
         <div class="rotate-bg">
           <img src="img/10_style/rotate_phone.png" alt="rotate your phone" class="rotate-phone">
         </div>
@@ -240,7 +274,7 @@ function screenRotation(){
       messageAppeard = true;
     }else if(window.innerHeight  < window.innerWidth){
       messageAppeard = false;
-      document.getElementById('info-container').innerHTML = '';
+      document.getElementById('screen-rotation-container').innerHTML = '';
     }
   }, 1000);
 }

@@ -33,8 +33,11 @@ class Level {
     }
 
 
+    /**
+     * Create the clouds and send them off with random positioning and speed
+     */
     createClouds() {
-        let gameLength = 50;
+        let gameLength = 25;
         for (let i = 0; i <= gameLength; i += 2) {
             let xShift = Math.random() * 720 * i;
             this.clouds.push(new Cloud(xShift))

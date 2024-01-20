@@ -9,6 +9,7 @@ class HealthStatus extends StatusBar {
   ];
   percentage = 100;
 
+  
   constructor() {
     super().loadImage('img/7_statusbars/1_statusbar/2_statusbar_health/orange/100.png');
     this.loadImages(this.IMAGES_HEALTH);
@@ -18,6 +19,7 @@ class HealthStatus extends StatusBar {
     this.height = 60;
     this.setPercentage(100);
   }
+
 
   setPercentage(percentage) {
     this.percentage = percentage;

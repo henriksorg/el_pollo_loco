@@ -1,5 +1,5 @@
 class Endboss extends MovableObject {
- 
+
   IMAGES_ALERT = [
     'img/4_enemie_boss_chicken/2_alert/G5.png',
     'img/4_enemie_boss_chicken/2_alert/G6.png',
@@ -75,94 +75,128 @@ class Endboss extends MovableObject {
     this.animate();
   }
 
-
+  /**
+   * the animate function for the Endboss.
+   * switches between alert, walking and attack animation 
+   * && hurt animation, if get a hit from a bottle 
+   * && dying animtion if have no life anymore
+   */
   animate() {
-    setInterval(() => {
+    setStoppableInterval(() => {
       if (this.canStartAnimation()) {
-        if (this.startAnimation == true){
-          // wichtige Parameter, dass die Funktion richtig ausgeführt wird 
+        if (this.startAnimation == true) {
           this.setParametersForStartingAnimation();
         }
-        if(this.canStartAlertAnimation()) {    
+        if (this.canStartAlertAnimation()) {
           this.playAnimation(this.IMAGES_ALERT);
         }
-        if(this.canStartAttackAnimation()){
+        if (this.canStartAttackAnimation()) {
           this.playAnimation(this.IMAGES_ATTACK)
           this.jumpOnRightPicture();
         }
-        if(this.canStartWalkingAnimation()){
+        if (this.canStartWalkingAnimation()) {
           this.playAnimation(this.IMAGES_WALKING)
           this.x -= 20;
         }
-        
         if (this.isHurt()) {
           this.playAnimation(this.IMAGES_HURT);
-      }
+        }
         if (this.isDead() && this.dieOnce) {
           this.dieOnce = false
+          this.dead = true;
           this.endbossDead();
           this.isDeadAnimation();
           endGame('img/9_intro_outro_screens/game_over/game over.png');
         }
-        } 
+      }
     }, 150);
   }
 
-
-  endbossDead(){
+  
+  /**
+   * important parameters for playing the dying animation
+   */
+  endbossDead() {
     this.firstPass = true
     this.currentImage = 0;
   }
 
 
+  /**
+   * if the Endboss dies, it has to play an animation one time
+   */
   isDeadAnimation() {
     const deadInterval = setInterval(() => {
       this.playAnimationOnce(this.IMAGES_DEAD, deadInterval);
     }, 100);
   }
 
-
-  jumpOnRightPicture(){
-    if(this.img == this.imageCache['img/4_enemie_boss_chicken/3_attack/G18.png']){
-        this.x -= 110;
+  /**
+   * 1 jump on the attack animation at the G18 picture
+   */
+  jumpOnRightPicture() {
+    if (this.img == this.imageCache['img/4_enemie_boss_chicken/3_attack/G18.png']) {
+      this.x -= 110;
     }
   }
 
 
-  canStartAttackAnimation(){
+  /**
+   * @returns true if the endboss is playing the attack animation
+   */
+  canStartAttackAnimation() {
     return this.calcTime() >= 6 && this.isnotHurtandDead();
   }
 
 
-  canStartAlertAnimation(){
+  /**
+   * @returns true if the endboss is playing the alert animation
+   */
+  canStartAlertAnimation() {
     return this.calcTime() < 3 && this.isnotHurtandDead();
   }
 
 
-  canStartWalkingAnimation(){
+  /**
+   * @returns true if the endboss have to walk
+   */
+  canStartWalkingAnimation() {
     return this.calcTime() >= 3 && this.calcTime() < 6 && this.isnotHurtandDead();
   }
 
 
-  setParametersForStartingAnimation(){
-    this.timeStamp = Math.round(new Date().getTime()/ 1000)
+  /**
+   * important parameters for starting the endboss animation
+   */
+  setParametersForStartingAnimation() {
+    this.timeStamp = Math.round(new Date().getTime() / 1000)
     this.startAnimation = false;
     this.startedAnimation = true;
   }
 
-
-  canStartAnimation(){
-    // Wenn der Character eine bestimmte x-Koordinate überschritten hat wird startAnimation auf true gesetzt (der Endboss soll sich erst ab einem bestimmten Zeitpunkt bewegen)
+  /**
+   * Die Endboss Animation erst starten wenn der Character eine bestimmte x-Koordinate erreicht hat
+   * @returns ob die Animation starten kann und ob diese schon gestartet ist
+   */
+  canStartAnimation() {
     return this.startAnimation == true || this.startedAnimation == true;
   }
 
 
-  isnotHurtandDead(){
+  /**
+   * @returns true if the endboss is not hurt or dead
+   */
+  isnotHurtandDead() {
     return !this.isHurt() && !this.isDead()
   }
 
-  calcTime(){
-    let setTime = Math.round(new Date().getTime()/ 1000);
+
+  /**
+   * defines sequences of the end boss animation
+   * @returns the time between 0 and 9
+   */
+  calcTime() {
+    let setTime = Math.round(new Date().getTime() / 1000);
     return -((this.timeStamp - setTime) % 10)
   }
 }

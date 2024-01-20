@@ -3,6 +3,11 @@ class StatusBar extends DrawableObject {
     super();
   }
   
+
+  /**
+   * translates the health for display on the status bar
+   * @returns the image <Index, that is to used
+   */
   resolveImageIndex() {
     if (this.percentage == 100) {
       return 5;
